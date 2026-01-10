@@ -1,0 +1,7 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/FurnitureStoreAPI/.vs/FurnitureStoreAPI
+/.vs
+/FurnitureStoreAPI/obj
