@@ -31,7 +31,7 @@ namespace FurnitureStoreAPI.Patterns.Singleton
             Console.WriteLine(logEntry);
         }
 
-        public List<string> GetLogs()
+        public List<string> GetAllLogs()
         {
             return new List<string>(_logs);
         }
