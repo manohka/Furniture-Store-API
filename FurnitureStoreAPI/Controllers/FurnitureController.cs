@@ -26,7 +26,7 @@ namespace FurnitureStoreAPI.Controllers
         public IActionResult GetFurnitureById(int id)
         {
             var furniture = _furnitureService.GetFurnitureById(id);
-            if(furniture == null)
+            if (furniture == null)
             {
                 return NotFound("Furniture Not Found");
             }
@@ -39,7 +39,7 @@ namespace FurnitureStoreAPI.Controllers
         public IActionResult CreateCustomFurniture(
             [FromBody] CreateFurnitureRequest request)
         {
-            if(request == null)
+            if (request == null)
             {
                 return BadRequest("Request cannot be null");
             }
@@ -115,6 +115,42 @@ namespace FurnitureStoreAPI.Controllers
         public IActionResult GetLogs()
         {
             return Ok(Logger.GetInstance().GetAllLogs());
+        }
+
+        // CREATIONAL DESIGN PATTERN
+        // ADAPTER PATTERN
+        [HttpGet("supplier/{supplierName}")]
+        public IActionResult GetFurnitureFromSupplier(string supplierName)
+        {
+            try
+            {
+                var furniture = _furnitureService.GetFurnitureFromSupplier(supplierName);
+
+                return Ok(furniture);
+
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("suppliers")]
+        public IActionResult GetAllSuppliers()
+        {
+            var suppliers = _furnitureService.GetAllSuppliers();
+            return Ok(suppliers);
+        }
+
+        [HttpGet("by-suplier/{supplierName}")]
+        public IActionResult GetFurnitureBySupplier(string supplierName)
+        {
+            var furniture = _furnitureService.GetFurnitureBySupplier(supplierName);
+
+            if (furniture == null || furniture.Count == 0)
+                return NotFound($"No furniture found from {supplierName}");
+
+            return Ok(furniture);
         }
     }
 

@@ -4,6 +4,7 @@ using FurnitureStoreAPI.Patterns.Builder;
 using FurnitureStoreAPI.Patterns.FactoryMethod;
 using FurnitureStoreAPI.Patterns.Prototype;
 using FurnitureStoreAPI.Patterns.Singleton;
+using FurnitureStoreAPI.Patterns.StructuralPatterns.Adapter;
 
 namespace FurnitureStoreAPI.Services
 {
@@ -111,7 +112,7 @@ namespace FurnitureStoreAPI.Services
         {
             var original = _furnitureInventory
                 .FirstOrDefault(f => f.Id == id);
-            if(original == null)
+            if (original == null)
             {
                 throw new KeyNotFoundException(
                     $"Furniture with id {id} not found");
@@ -141,5 +142,51 @@ namespace FurnitureStoreAPI.Services
             return _furnitureInventory.FirstOrDefault(f => f.Id == id);
         }
 
+        // STRUCTURAL DESIGN PATTERNS
+        // ADAPTER PATTERN   12/01/2026
+
+        public List<Furniture> GetFurnitureFromSupplier(string supplier)
+        {
+            IFurnitureSupplier supplierAdapter = supplier.ToLower() switch
+            {
+                "ikea" => new IKEAAdapter(),
+                "ashley" => new AshleyFurnitureAdapter(),
+                "wayfair" => new WayfairAdapter(),
+                _ => throw new ArgumentException("Unknown Supplier")
+            };
+
+            var furniture = supplierAdapter.GetFurnitureList();
+
+            // Add supplier info to each item
+            foreach (var item in furniture)
+            {
+                item.Supplier = supplier;
+            }
+
+            // Add to inventory (consistent with other patterns)
+            _furnitureInventory.AddRange(furniture);
+
+            Logger.GetInstance().Log($"Fetched and added {furniture.Count} items from {supplier}");
+
+            return furniture;
+        }
+
+        // Get all suppliers in inventory
+        public List<string> GetAllSuppliers()
+        {
+            return _furnitureInventory.
+                Select(f => f.Supplier)
+                .Where(s => !string.IsNullOrEmpty(s))
+                .Distinct()
+                .ToList();
+        }
+
+        // Get furniture by supplier
+        public List<Furniture> GetFurnitureBySupplier(string supplier)
+        {
+            return _furnitureInventory
+                .Where(f => f.Supplier?.ToLower() == supplier.ToLower())
+                .ToList();
+        }
     }
 }

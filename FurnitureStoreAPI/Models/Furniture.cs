@@ -8,11 +8,13 @@
         public decimal Price { get; set; }
         public string Material { get; set; }
         public string Color { get; set; }
+        public string Supplier { get; set; } // NEW: Track Source
 
         public override string ToString()
         {
             return $"Furniture: {Name}, Style: {Style}, Price: ${Price}, "
-                + $"Material: {Material}, Color: {Color}";
+                + $"Material: {Material}, Color: {Color}, "
+                + $"Supplier: {Supplier}";
         }
     }
 
