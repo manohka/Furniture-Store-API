@@ -5,6 +5,7 @@ using FurnitureStoreAPI.Patterns.FactoryMethod;
 using FurnitureStoreAPI.Patterns.Prototype;
 using FurnitureStoreAPI.Patterns.Singleton;
 using FurnitureStoreAPI.Patterns.StructuralPatterns.Adapter;
+using FurnitureStoreAPI.Patterns.StructuralPatterns.Facade;
 
 namespace FurnitureStoreAPI.Services
 {
@@ -187,6 +188,13 @@ namespace FurnitureStoreAPI.Services
             return _furnitureInventory
                 .Where(f => f.Supplier?.ToLower() == supplier.ToLower())
                 .ToList();
+        }
+
+        // Facade Pattern
+        public OrderResponse PlaceOrder(OrderRequest request, Furniture furniture)
+        {
+            var orderFacade = new OrderFacade();
+            return orderFacade.PlaceOrder(request, furniture);
         }
     }
 }

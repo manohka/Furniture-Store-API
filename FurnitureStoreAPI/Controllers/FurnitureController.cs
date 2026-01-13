@@ -1,4 +1,5 @@
-﻿using FurnitureStoreAPI.Patterns.Singleton;
+﻿using FurnitureStoreAPI.Models;
+using FurnitureStoreAPI.Patterns.Singleton;
 using FurnitureStoreAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -151,6 +152,34 @@ namespace FurnitureStoreAPI.Controllers
                 return NotFound($"No furniture found from {supplierName}");
 
             return Ok(furniture);
+        }
+
+        // FACADE DESIGN PATTERN: STRUCTURAL
+        [HttpPost("order")]
+        public IActionResult PlaceOrder([FromBody]OrderRequest request)
+        {
+            try
+            {
+                if (request == null)
+                {
+                    return BadRequest("Request cannot be null");
+                }
+
+                var furniture = _furnitureService.GetFurnitureById(request.FurnitureId);
+                if(furniture == null)
+                {
+                    return NotFound("Furniture not found");
+                }
+
+                var orderResponse = _furnitureService.PlaceOrder(request, furniture);
+
+                return Ok(orderResponse);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 
