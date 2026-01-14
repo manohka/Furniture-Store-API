@@ -6,6 +6,7 @@ using FurnitureStoreAPI.Patterns.Prototype;
 using FurnitureStoreAPI.Patterns.Singleton;
 using FurnitureStoreAPI.Patterns.StructuralPatterns.Adapter;
 using FurnitureStoreAPI.Patterns.StructuralPatterns.Facade;
+using FurnitureStoreAPI.Patterns.StructuralPatterns.Proxy;
 
 namespace FurnitureStoreAPI.Services
 {
@@ -195,6 +196,39 @@ namespace FurnitureStoreAPI.Services
         {
             var orderFacade = new OrderFacade();
             return orderFacade.PlaceOrder(request, furniture);
+        }
+
+        // PROXY PATTERN:
+
+        public Furniture GetFurnitureWithProxy(
+            User user, int furnitureId)
+        {
+            var proxy = new FurnitureAccessProxy(user);
+            var furniture = proxy.GetFurniture(furnitureId);
+
+            Logger.GetInstance().Log(
+        $"Service: Retrieved furniture for user " +
+        $"{user.Username}");
+
+            return furniture;
+        }
+
+        public List<Furniture> GetAllFurnitureWithProxy(User user)
+        {
+            var proxy = new FurnitureAccessProxy(user);
+            var furniture = proxy.GetAllFurniture();
+
+            Logger.GetInstance().Log(
+        $"Service: Retrieved all furniture for user " +
+        $"{user.Username}");
+
+            return furniture;
+        }
+
+        public decimal GetPriceWithProxy(User user, int furnitureId)
+        {
+            var proxy = new FurnitureAccessProxy(user);
+            return proxy.GetPrice(furnitureId);
         }
     }
 }

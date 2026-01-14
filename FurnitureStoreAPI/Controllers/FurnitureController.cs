@@ -181,6 +181,109 @@ namespace FurnitureStoreAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        // PROXY DESIGN PATTERN
+        [HttpPost("proxy/access")]
+        public IActionResult GetFurnitureWithProxy(
+            [FromBody] ProxyAccessRequest request)
+        {
+            try
+            {
+                var user = new User
+                {
+                    UserId = request.UserId,
+                    Username = request.Username,
+                    Email = request.Email,
+                    MembershipType = request.MembershipType,
+                };
+
+                var furniture = _furnitureService.GetFurnitureWithProxy(
+                    user,
+                    request.FurnitureId);
+
+                if(furniture == null)
+                {
+                    return NotFound("Furniture not found");
+                }
+
+                return Ok(new
+                {
+                    furniture,
+                    userMembership = user.MembershipType,
+                    message = "Access granted"
+                });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("proxy/all")]
+        public IActionResult GetAllFurnitureWithProxy(
+            [FromBody] ProxyAccessRequest request)
+        {
+            try
+            {
+                var user = new User
+                {
+                    UserId = request.UserId,
+                    Username = request.Username,
+                    Email = request.Email,
+                    MembershipType = request.MembershipType
+                };
+
+                var furniture = _furnitureService
+                    .GetAllFurnitureWithProxy(user);
+
+                return Ok(new
+                {
+                    count = furniture.Count,
+                    furniture,
+                    userMembership = user.MembershipType
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("proxy/price")]
+        public IActionResult GetPriceWithProxy(
+            [FromBody] ProxyPriceRequest request)
+        {
+            try
+            {
+                var user = new User
+                {
+                    UserId = request.UserId,
+                    Username = request.Username,
+                    Email = request.Email,
+                    MembershipType = request.MembershipType
+                };
+
+                var price = _furnitureService
+                    .GetPriceWithProxy(user, request.FurnitureId);
+
+                return Ok(new
+                {
+                    furnitureId = request.FurnitureId,
+                    originalPrice = "Check database",
+                    discountedPrice = price,
+                    userMembership = user.MembershipType,
+                    savings = "See console logs for details"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 
     public class  CreateFurnitureRequest
@@ -190,5 +293,24 @@ namespace FurnitureStoreAPI.Controllers
         public decimal Price { get; set; }
         public string Material { get; set; }
         public string Color { get; set; }
+    }
+
+    // DTOs for proxy requests
+    public class ProxyAccessRequest
+    {
+        public int UserId { get; set; }
+        public string Username { get; set; }
+        public string Email { get; set; }
+        public MembershipType MembershipType { get; set; }
+        public int FurnitureId { get; set; }
+    }
+
+    public class ProxyPriceRequest
+    {
+        public int UserId { get; set; }
+        public string Username { get; set; }
+        public string Email { get; set; }
+        public MembershipType MembershipType { get; set; }
+        public int FurnitureId { get; set; }
     }
 }
