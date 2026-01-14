@@ -5,6 +5,7 @@ using FurnitureStoreAPI.Patterns.FactoryMethod;
 using FurnitureStoreAPI.Patterns.Prototype;
 using FurnitureStoreAPI.Patterns.Singleton;
 using FurnitureStoreAPI.Patterns.StructuralPatterns.Adapter;
+using FurnitureStoreAPI.Patterns.StructuralPatterns.Bridge;
 using FurnitureStoreAPI.Patterns.StructuralPatterns.Facade;
 using FurnitureStoreAPI.Patterns.StructuralPatterns.Proxy;
 
@@ -229,6 +230,125 @@ namespace FurnitureStoreAPI.Services
         {
             var proxy = new FurnitureAccessProxy(user);
             return proxy.GetPrice(furnitureId);
+        }
+
+        // BRIDGE Pattern - Create furniture with specific material
+
+        // CONTINUE FROM HERE
+
+        public FurnitureSpecification CreateBridgeFurniture(
+            string furnitureType,
+            string materialType)
+        {
+            IMaterialProduction material = materialType.ToLower() switch
+            {
+                "wood" => new WoodProduction(),
+                "metal" => new MetalProduction(),
+                "leather" => new LeatherProduction(),
+                "fabric" => new FabricProduction(),
+                _ => throw new ArgumentException("Unknown material type")
+            };
+
+            // Create abstraction with bridge
+            BridgeFurniture furniture = furnitureType.ToLower() switch
+            {
+                "chair" => new Chair(material),
+                "table" => new Table(material),
+                "sofa" => new Sofa(material),
+                "bed" => new Bed(material),
+                _ => throw new ArgumentException(
+                    "Unknown furniture type")
+            };
+
+            Logger.GetInstance().Log(
+        $"Bridge: Created {furnitureType} with {materialType}");
+
+            return furniture.GetSpecification();
+        }
+
+        // Bridge Pattern - Change material at runtime
+        public FurnitureSpecification ChangeFurnitureMaterial(
+            string furnitureType,
+            string currentMaterial,
+            string newMaterial)
+        {
+            // Create with current material
+            IMaterialProduction currentMat = currentMaterial
+                .ToLower() switch
+            {
+                "wood" => new WoodProduction(),
+                "metal" => new MetalProduction(),
+                "leather" => new LeatherProduction(),
+                "fabric" => new FabricProduction(),
+                _ => throw new ArgumentException(
+                    "Unknown material type")
+            };
+
+            BridgeFurniture furniture = furnitureType
+                .ToLower() switch
+            {
+                "chair" => new Chair(currentMat),
+                "table" => new Table(currentMat),
+                "sofa" => new Sofa(currentMat),
+                "bed" => new Bed(currentMat),
+                _ => throw new ArgumentException(
+                    "Unknown furniture type")
+            };
+
+            // Change to new material
+            IMaterialProduction newMat = newMaterial.ToLower() switch
+            {
+                "wood" => new WoodProduction(),
+                "metal" => new MetalProduction(),
+                "leather" => new LeatherProduction(),
+                "fabric" => new FabricProduction(),
+                _ => throw new ArgumentException(
+                    "Unknown material type")
+            };
+
+            furniture.SetMaterialProduction(newMat);
+
+            Logger.GetInstance().Log(
+        $"Bridge: Changed {furnitureType} material " +
+        $"from {currentMaterial} to {newMaterial}");
+
+            return furniture.GetSpecification();
+        }
+
+        // Get all possible combinations
+        public List<dynamic> GetAllBridgeCombinations()
+        {
+            var furnitureTypes = new[]
+            { "chair", "table", "sofa", "bed" };
+
+            var materials = new[]
+            { "wood", "metal", "leather", "fabric" };
+
+            var combinations = new List<dynamic>();
+
+            foreach ( var furniture in furnitureTypes )
+            {
+                foreach ( var material in materials )
+                {
+                    try
+                    {
+                        var spec = CreateBridgeFurniture(
+                            furniture, material);
+
+                        combinations.Add(new
+                        {
+                            furnitureType = furniture,
+                            materialType = material,
+                            price = spec.TotalPrice
+                        });
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
+                }
+            }
+            return combinations;
         }
     }
 }

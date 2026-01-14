@@ -284,7 +284,64 @@ namespace FurnitureStoreAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        // BRIDGE PATTERN
+
+        [HttpPost("bridge/create")]
+        public IActionResult CreateBridgeFurniture(
+            [FromBody] BridgeCreateRequest request)
+        {
+            try
+            {
+                var specifications = _furnitureService
+                    .CreateBridgeFurniture(request.FurnitureType,
+                    request.MaterialType);
+
+                return Ok(specifications);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("bridge/change-material")]
+        public IActionResult ChangeFurnitureMaterial(
+            [FromBody]BridgeChangeMaterialRequest request)
+        {
+            try
+            {
+                var specification = _furnitureService.ChangeFurnitureMaterial(
+                    request.FurnitureType,
+                    request.CurrentMaterial,
+                    request.NewMaterial);
+
+                return Ok(new
+                {
+                    message = "Material changed successfully",
+                    specification
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("bridge/all-combinations")]
+        public IActionResult GetAllBridgeCombinations()
+        {
+            var combinations = _furnitureService.GetAllBridgeCombinations();
+
+            return Ok(new
+            {
+                totalCombinations = combinations.Count,
+                combinations
+            });
+        }
     }
+
+
 
     public class  CreateFurnitureRequest
     {
@@ -312,5 +369,19 @@ namespace FurnitureStoreAPI.Controllers
         public string Email { get; set; }
         public MembershipType MembershipType { get; set; }
         public int FurnitureId { get; set; }
+    }
+
+    // DTOs for BRIDGE PATTERN REQUESTS
+    public class BridgeCreateRequest
+    {
+        public string FurnitureType { get; set; }
+        public string MaterialType { get; set; }
+    }
+
+    public class BridgeChangeMaterialRequest
+    {
+        public string FurnitureType { get; set; }
+        public string CurrentMaterial { get; set; }
+        public string NewMaterial { get; set; }
     }
 }
