@@ -339,6 +339,107 @@ namespace FurnitureStoreAPI.Controllers
                 combinations
             });
         }
+
+        // COMPOSITE PATTERN
+        [HttpGet("composite/summary")]
+        public IActionResult GetCatalogSummary()
+        {
+            try
+            {
+                var summary = _furnitureService.GetCatalogSummary();
+
+                return Ok(summary);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("composite/hierarchy")]
+        public IActionResult GetCatalogHierarchy()
+        {
+            try
+            {
+                var hierarchy = _furnitureService.GetCatalogHierarchy();
+
+                return Ok(hierarchy);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("composite/all-items")]
+        public IActionResult GetAllItemsInCatalog()
+        {
+            try
+            {
+                var items = _furnitureService.GetAllItemsInCatalog();
+
+                return Ok(new
+                {
+                    totalItems = items.Count,
+                    items = items.Select(i => new
+                    {
+                        i.Name,
+                        i.Price,
+                        i.Quantity,
+                        i.Material,
+                        i.Color,
+                        i.Weight
+                    })
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("composite/collection/{collectionName}")]
+        public IActionResult GetCollectionPrice(
+            string collectionName)
+        {
+            try
+            {
+                var price = _furnitureService.GetCollectionPrice(collectionName);
+
+                return Ok(new
+                {
+                    collection = collectionName,
+                    totalPrice = price,
+                    message = "Success"
+                });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("composite/display")]
+        public IActionResult DisplayCatalogTree()
+        {
+            try
+            {
+                _furnitureService.DisplayCatalogTree();
+                return Ok(new
+                {
+                    message =
+                        "Catalog tree displayed in console"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 
 

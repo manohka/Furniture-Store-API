@@ -6,6 +6,7 @@ using FurnitureStoreAPI.Patterns.Prototype;
 using FurnitureStoreAPI.Patterns.Singleton;
 using FurnitureStoreAPI.Patterns.StructuralPatterns.Adapter;
 using FurnitureStoreAPI.Patterns.StructuralPatterns.Bridge;
+using FurnitureStoreAPI.Patterns.StructuralPatterns.Composite;
 using FurnitureStoreAPI.Patterns.StructuralPatterns.Facade;
 using FurnitureStoreAPI.Patterns.StructuralPatterns.Proxy;
 
@@ -15,6 +16,9 @@ namespace FurnitureStoreAPI.Services
     {
         private List<Furniture> _furnitureInventory = new();
         private int _nextId = 1;
+
+        // COMPOSITE PATTERN
+        private FurnitureCollection _currentCatalog;
         public FurnitureService()
         {
             InitializeInvenntory();
@@ -349,6 +353,123 @@ namespace FurnitureStoreAPI.Services
                 }
             }
             return combinations;
+        }
+
+
+        // COMPOSITE DESIGN PATTERNS
+        public void InitializeCompositeCatalog()
+        {
+            _currentCatalog = FurnitureCatalog.BuildCompleteCatalog();
+
+            Logger.GetInstance().Log(
+                "Service: Initialized composite catalog");
+        }
+
+        public CatalogSummary GetCatalogSummary()
+        {
+            if ( _currentCatalog == null)
+            {
+                InitializeCompositeCatalog();
+            }
+
+            var summary = new CatalogSummary
+            {
+                Name = _currentCatalog.GetName(),
+                TotalItems = _currentCatalog.GetQuantity(),
+                TotalPrice = _currentCatalog.GetTotalPrice(),
+                TotalWeight = _currentCatalog.GetWeight()
+            };
+            
+            foreach(var child in _currentCatalog.GetChildren())
+            {
+                if ( child is FurnitureCollection collection)
+                {
+                    summary.Collections.Add(new CollectionSummary
+                    {
+                        Name = collection.GetName(),
+                        Description =
+                        collection.GetDescription(),
+                        ItemCount = collection.GetQuantity(),
+                        TotalPrice = collection
+                        .GetTotalPrice()
+                    });
+                }
+            }
+
+            return summary;
+        }
+
+        public CompositeItemResponse GetCatalogHierarchy()
+        {
+            if ( _currentCatalog == null)
+            {
+                InitializeCompositeCatalog();
+            }
+
+            return BuildCompositeResponse(_currentCatalog);
+        }
+
+        public CompositeItemResponse BuildCompositeResponse(IFurnitureComponent component)
+        {
+            var response = new CompositeItemResponse
+            {
+                Name = component.GetName(),
+                Description = component.GetDescription(),
+                Price = component.GetPrice(),
+                Quantity = component.GetQuantity(),
+                Weight = component.GetWeight(),
+                TotalPrice = component.GetTotalPrice(),
+                Type = component is FurnitureItem
+                ? "Item"
+                : "Collection"
+            };
+
+            if (component is FurnitureCollection collection)
+            {
+                foreach ( var child in collection.GetChildren())
+                {
+                    response.Children.Add(
+                        BuildCompositeResponse(child));
+                }
+            }
+
+            return response;
+        }
+
+        public List<FurnitureItem> GetAllItemsInCatalog()
+        {
+            if (_currentCatalog == null)
+                InitializeCompositeCatalog();
+
+            return _currentCatalog.GetAllItems();
+        }
+
+        public decimal GetCollectionPrice(string collectionName)
+        {
+            if (_currentCatalog == null)
+                InitializeCompositeCatalog();
+
+            var collection = _currentCatalog.GetChildren()
+                .OfType<FurnitureCollection>()
+                .FirstOrDefault(c => c.GetName()
+                .ToLower() == collectionName.ToLower());
+
+            if (collection == null)
+            {
+                throw new KeyNotFoundException(
+                    $"Collection {collectionName} not found");
+            }
+
+
+            return collection.GetTotalPrice();
+        }
+
+        public void DisplayCatalogTree()
+        {
+            if (_currentCatalog == null)
+                InitializeCompositeCatalog();
+
+            _currentCatalog.Display();
         }
     }
 }
