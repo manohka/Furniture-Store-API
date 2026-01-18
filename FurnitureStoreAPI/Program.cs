@@ -4,6 +4,8 @@ using FurnitureStoreAPI.Services;
 using FurnitureStoreAPI.Services.DecoratorCoffeeService;
 using FurnitureStoreAPI.Services.SimpleFlyWeightService;
 using FurnitureStoreAPI.Services.StrategyPaymentService;
+using FurnitureStoreAPI.Patterns.BehavioralPattterns.RefactoringGuru.Observer.ConcreteObservers;
+using FurnitureStoreAPI.Patterns.BehavioralPattterns.RefactoringGuru.Observer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,3 +54,20 @@ Console.WriteLine();
 Console.WriteLine("Client: Strategy is set to reverse sorting.");
 context.SetStrategy(new ConcreteStrategyB());
 context.DoSomeBusinessLogic();
+
+
+// OBSERVER DESING PATTERN - REFACTORING GURU
+// The client code.
+var subject = new Subject();
+var observerA = new ConcreteObserverA();
+subject.Attach(observerA);
+
+var observerB = new ConcreteObserverB();
+subject.Attach(observerB);
+
+subject.SomeBusinessLogic();
+subject.SomeBusinessLogic();
+
+subject.Detach(observerB);
+
+subject.SomeBusinessLogic();
