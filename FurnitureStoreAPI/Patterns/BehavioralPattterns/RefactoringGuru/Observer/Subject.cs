@@ -55,4 +55,4 @@ namespace FurnitureStoreAPI.Patterns.BehavioralPattterns.RefactoringGuru.Observe
         }
     }
 }
-}
+

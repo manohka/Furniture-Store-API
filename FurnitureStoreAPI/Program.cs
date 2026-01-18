@@ -6,6 +6,7 @@ using FurnitureStoreAPI.Services.SimpleFlyWeightService;
 using FurnitureStoreAPI.Services.StrategyPaymentService;
 using FurnitureStoreAPI.Patterns.BehavioralPattterns.RefactoringGuru.Observer.ConcreteObservers;
 using FurnitureStoreAPI.Patterns.BehavioralPattterns.RefactoringGuru.Observer;
+using FurnitureStoreAPI.Services.ObserverStockService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,7 @@ builder.Services.AddSingleton<FurnitureService>();
 builder.Services.AddSingleton<CoffeeShopService>();
 builder.Services.AddSingleton<SimpleFlyweightService>();
 builder.Services.AddSingleton<StrategyPaymentService>();
+builder.Services.AddSingleton<ObserverStockService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

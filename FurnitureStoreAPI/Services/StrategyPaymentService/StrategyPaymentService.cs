@@ -166,7 +166,7 @@ namespace FurnitureStoreAPI.Services.StrategyPaymentService
             string transactionId)
         {
             var transaction = _transactions
-                .FirstOrDefault(t =>
+                .FirstOrDefault(t => 
                     t.TransactionId == transactionId);
 
             if (transaction == null)
